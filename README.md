@@ -22,7 +22,7 @@ Ensure the following dependencies are installed:
 To install wayvibes, use the following commands: 
 
 ```bash
-git clone https://github.com/bhattkacode/wayvibes
+git clone https://github.com/sahaj-b/wayvibes
 cd wayvibes
 make
 sudo make install
