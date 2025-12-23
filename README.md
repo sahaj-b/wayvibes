@@ -124,6 +124,20 @@ Wayvibes is compatible with the Mechvibes soundpack format. So, You can find sou
 ### Note:
 Some soundpacks with single audio file configuration won't work, use [this tool](https://github.com/KunalBagaria/packfixer-rustyvibes) to convert them into a compatible format
 
+If the sounds for the arrow keys and Super key (Win) do not trigger in a sound pack, add the following to `config.json`:
+
+```json
+{
+  "103": "<UP sound>",
+  "108": "<DOWN sound>",
+  "105": "<LEFT sound>",
+  "106": "<RIGHT sound>",
+  "125": "<SUPPER sound>",
+  "97": "<RCTRL sound>",
+  "100": "<RALT sound>"
+}
+```
+
 ### Ogg files incompatiblity
 Wayvibes uses miniaudio to play sounds, which doesn't support all ogg files by default. So, you need to convert ogg files to wav/mp3 files using `ffmpeg` or `sox`, and change the extensions in the `config.json` file. Use this command for this:
 
