@@ -124,6 +124,20 @@ Wayvibes is compatible with the Mechvibes soundpack format. So, You can find sou
 ### Note:
 Some soundpacks with single audio file configuration won't work, use [this tool](https://github.com/KunalBagaria/packfixer-rustyvibes) to convert them into a compatible format
 
+### Pre-converted Soundpacks
+The following soundpacks are already converted to wav format and ready to use directly with wayvibes (no extra steps needed):
+- CherryMX Black ABS & PBT
+- CherryMX Blue ABS & PBT
+- CherryMX Brown ABS & PBT
+- CherryMX Red ABS & PBT
+- Creams
+- EG Crystal Purple
+- EG Oreo
+- Kalih Box White
+- NK Cream
+- Topre Purple Hybrid PBT
+- Akko Lavender Purples
+
 ### Ogg files incompatiblity
 Wayvibes uses miniaudio to play sounds, which doesn't support all ogg files by default. So, you need to convert ogg files to wav/mp3 files using `ffmpeg` or `sox`, and change the extensions in the `config.json` file. Use this command for this:
 
