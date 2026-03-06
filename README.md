@@ -70,9 +70,9 @@ sudo make uninstall
 sudo usermod -a -G input <your_username>
 ```
 
-1. **Reboot** or **Logout and Login** for the changes to take effect.
+2. **Reboot** or **Logout and Login** for the changes to take effect.
 
-2. Run the application:
+3. Run the application:
 
 ```
 Usage: wayvibes [options] [soundpack_path]
@@ -93,8 +93,8 @@ wayvibes <soundpack_path> -v <volume(0.0-10.0)>
 **Example:**
 
 ```bash
-wayvibes ~/wayvibes/akko_lavender_purples/ -v 3
-wayvibes ~/my_soundpacks/cherry_mx/ -v 5 --background
+wayvibes ~/wayvibes/soundpacks/akko_lavender_purples/ -v 3
+wayvibes ~/wayvibes/soundpacks/nk-cream/ -v 5 --background
 ```
 
 #### Note
