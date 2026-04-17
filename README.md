@@ -19,6 +19,31 @@ Install [wayvibes-git](https://aur.archlinux.org/packages/wayvibes-git) from AUR
 yay -S wayvibes-git
 ```
 
+### NixOS
+Add `wayvibes` url to your inputs:
+```nix
+inputs = {
+  nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+  wayvibes = {
+    url = "github:sahaj-b/wayvibes";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+};
+```
+Install `wayvibes`:
+```nix
+{
+  pkgs,
+  inputs,
+  ...
+}:{
+  home.packages = with pkgs; [
+    inputs.wayvibes.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
+}
+```
+
 ### From Source
 
 #### Prerequisites
