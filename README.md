@@ -20,6 +20,7 @@ yay -S wayvibes-git
 ```
 
 ### NixOS
+
 Add `wayvibes` url to your inputs:
 ```nix
 inputs = {
@@ -31,16 +32,22 @@ inputs = {
   };
 };
 ```
-Install `wayvibes`:
+
+Install `wayvibes` and enable service using home-manager:
 ```nix
-{
-  pkgs,
-  inputs,
-  ...
-}:{
-  home.packages = with pkgs; [
-    inputs.wayvibes.packages.${pkgs.stdenv.hostPlatform.system}.default
+# home.nix
+{inputs, ...}: {
+  imports = [
+    inputs.wayvibes.nixosModules.default
   ];
+
+  services = {
+    wayvibes = {
+      enable = true;
+      soundpack = "/home/youruser/wayvibes/soundpacks/cherrymx-red-abs";
+      volume = 5;
+    };
+  };
 }
 ```
 
@@ -139,6 +146,11 @@ To reset and prompt for input device selection again, use:
 
 ```bash
 wayvibes --device
+```
+
+If you use NixOS, you have to restart the service after changing the device.
+```bash
+systemctl --user restart wayvibes.service
 ```
 
 > [!NOTE]
