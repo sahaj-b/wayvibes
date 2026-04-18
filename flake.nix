@@ -16,5 +16,10 @@
     packages = forAllSystems (system: {
       default = pkgsFor.${system}.callPackage ./nix/default.nix {};
     });
+
+    nixosModules.default = {pkgs, ...}: {
+      imports = [./nix/module.nix];
+      services.wayvibes.package = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    };
   };
 }
