@@ -19,6 +19,38 @@ Install [wayvibes-git](https://aur.archlinux.org/packages/wayvibes-git) from AUR
 yay -S wayvibes-git
 ```
 
+### NixOS
+
+Add `wayvibes` url to your inputs:
+```nix
+inputs = {
+  nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+  wayvibes = {
+    url = "github:sahaj-b/wayvibes";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+};
+```
+
+Install `wayvibes` and enable service using home-manager:
+```nix
+# home.nix
+{inputs, ...}: {
+  imports = [
+    inputs.wayvibes.nixosModules.default
+  ];
+
+  services = {
+    wayvibes = {
+      enable = true;
+      soundpack = "/home/youruser/wayvibes/soundpacks/cherrymx-red-abs";
+      volume = 5;
+    };
+  };
+}
+```
+
 ### From Source
 
 #### Prerequisites
@@ -114,6 +146,11 @@ To reset and prompt for input device selection again, use:
 
 ```bash
 wayvibes --device
+```
+
+If you use NixOS, you have to restart the service after changing the device.
+```bash
+systemctl --user restart wayvibes.service
 ```
 
 > [!NOTE]
