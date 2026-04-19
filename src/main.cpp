@@ -12,7 +12,7 @@ void printHelp() {
   std::cout << "Usage: wayvibes [options] [soundpack_path]\n"
             << "Options:\n"
             << "  --device              Select input device\n"
-            << "  --device-name <name>  Find and use input device by exact name\n"
+            << "  --device-name <name>  Use input device by exact name\n"
             << "  -v <volume>           Set volume (0.0-10.0) (default: 1.0)\n"
             << "  --background, -bg     Run in background (detached from terminal)\n"
             << "  --help, -h            Show this help message\n"
