@@ -107,42 +107,59 @@ std::string findKeyboardDevices() {
   return selectedDevice;
 }
 
-std::string resolveToByIdPath(const std::string &eventDevice) {
-  namespace fs = std::filesystem;
-  std::string byIdDir = "/dev/input/by-id/";
-
-  try {
-    if (!fs::exists(byIdDir)) {
-      return ""; // No by-id directory, fallback to event path
-    }
-
-    std::string targetPath = fs::canonical(deviceDir + eventDevice);
-
-    for (const auto &entry : fs::directory_iterator(byIdDir)) {
-      if (fs::is_symlink(entry)) {
-        std::string linkTarget = fs::canonical(entry);
-
-        if (linkTarget == targetPath) {
-          return entry.path().string();
-        }
-      }
-    }
-  } catch (const std::exception &e) {
-    std::cerr << RED << "Error resolving symlink: " << e.what() << RESET << std::endl;
+std::string getDevicePathByName(const std::string &name) {
+  DIR *dir = opendir(deviceDir);
+  if (!dir) {
+    std::cerr << RED << "Failed to open /dev/input directory" << RESET << std::endl;
+    return "";
   }
 
-  return ""; // No matching symlink found
+  struct dirent *entry;
+  std::string foundPath = "";
+
+  while ((entry = readdir(dir)) != NULL) {
+    if (strncmp(entry->d_name, "event", 5) == 0) {
+      std::string devicePath = std::string(deviceDir) + entry->d_name;
+      struct libevdev *dev = nullptr;
+      int fd = open(devicePath.c_str(), O_RDONLY);
+      if (fd < 0) continue;
+
+      int rc = libevdev_new_from_fd(fd, &dev);
+      if (rc < 0) {
+        close(fd);
+        continue;
+      }
+
+      if (libevdev_has_event_code(dev, EV_KEY, KEY_A)) {
+        if (name == libevdev_get_name(dev)) {
+          foundPath = devicePath;
+          libevdev_free(dev);
+          close(fd);
+          break;
+        }
+      }
+
+      libevdev_free(dev);
+      close(fd);
+    }
+  }
+
+  closedir(dir);
+  return foundPath;
 }
 
 std::string getInputDevicePath(std::string &configDir) {
-  std::string inputFilePath = configDir + "/input_device_path";
+  std::string inputFilePath = configDir + "/input_device_name";
   std::ifstream inputFile(inputFilePath);
 
   if (inputFile.is_open()) {
-    std::string devicePath;
-    std::getline(inputFile, devicePath);
+    std::string deviceName;
+    std::getline(inputFile, deviceName);
     inputFile.close();
-    return devicePath;
+
+    if (!deviceName.empty()) {
+      return getDevicePathByName(deviceName);
+    }
   }
 
   return "";
@@ -151,23 +168,28 @@ std::string getInputDevicePath(std::string &configDir) {
 void saveInputDevice(std::string &configDir) {
   std::string selectedDevice = findKeyboardDevices();
   if (!selectedDevice.empty()) {
-    std::string byIdPath = resolveToByIdPath(selectedDevice);
-    std::string deviceToSave;
+    std::string devicePath = std::string(deviceDir) + selectedDevice;
+    int fd = open(devicePath.c_str(), O_RDONLY);
+    std::string deviceName;
 
-    if (!byIdPath.empty()) {
-      std::cout << GREEN << "\nUsing by-id path..." << RESET << std::endl;
-      deviceToSave = byIdPath;
-    } else {
-      std::cout << YELLOW << BOLD
-                << "\nNo by-id symlink found, using non-persistent event path..." << RESET
-                << std::endl;
-      deviceToSave = deviceDir + selectedDevice;
+    if (fd >= 0) {
+      struct libevdev *dev = nullptr;
+      if (libevdev_new_from_fd(fd, &dev) >= 0) {
+        deviceName = libevdev_get_name(dev);
+        libevdev_free(dev);
+      }
+      close(fd);
     }
 
-    std::ofstream outputFile(configDir + "/input_device_path");
-    outputFile << deviceToSave;
+    if (deviceName.empty()) {
+      std::cerr << RED << "Could not determine device name. Exiting." << RESET << std::endl;
+      exit(1);
+    }
+
+    std::ofstream outputFile(configDir + "/input_device_name");
+    outputFile << deviceName;
     outputFile.close();
-    std::cout << GREEN << "Device path saved: " << deviceToSave << RESET << std::endl;
+    std::cout << GREEN << "Device name saved: " << deviceName << RESET << std::endl;
   } else {
     std::cerr << RED << "No device selected. Exiting." << RESET << std::endl;
     exit(1);

@@ -11,18 +11,22 @@
 void printHelp() {
   std::cout << "Usage: wayvibes [options] [soundpack_path]\n"
             << "Options:\n"
-            << "  --device          Select input device\n"
-            << "  -v <volume>       Set volume (0.0-10.0) (default: 1.0)\n"
-            << "  --background, -bg Run in background (detached from terminal)\n"
-            << "  --help, -h       Show this help message\n"
-            << "Note: default soundpack path is './' (current directory) "
-            << "Example: wayvibes ~/wayvibes/akko_lavender_purples/ -v 3" << std::endl;
+            << "  --device              Select input device\n"
+            << "  --device-name <name>  Find and use input device by exact name\n"
+            << "  -v <volume>           Set volume (0.0-10.0) (default: 1.0)\n"
+            << "  --background, -bg     Run in background (detached from terminal)\n"
+            << "  --help, -h            Show this help message\n"
+            << "Note: default soundpack path is './' (current directory)\n"
+            << "Example: wayvibes ~/wayvibes/akko_lavender_purples/ -v 3 --device-name "
+               "'ITE Tech. Inc. ITE Device Keyboard'"
+            << std::endl;
 }
 
 int main(int argc, char *argv[]) {
   std::string soundpackPath = "./";
   float volume = 1.0f;
   std::string configDir;
+  std::string targetDeviceName = "";
   bool silent = false;
   const char *xdgConfigHome = std::getenv("XDG_CONFIG_HOME");
   configDir = (xdgConfigHome ? xdgConfigHome : std::string(getenv("HOME")) + "/.config") +
@@ -36,6 +40,9 @@ int main(int argc, char *argv[]) {
     if (std::string(argv[i]) == "--device") {
       saveInputDevice(configDir);
       return 0;
+    } else if ((std::string(argv[i]) == "--device-name") && (i + 1) < argc) {
+      targetDeviceName = argv[i + 1];
+      i++;
     } else if (std::string(argv[i]) == "-v" && (i + 1) < argc) {
       try {
         volume = std::stof(argv[i + 1]);
@@ -86,12 +93,24 @@ int main(int argc, char *argv[]) {
   std::unordered_map<int, std::string> keySoundMap =
       loadKeySoundMappings(soundpackPath + "/config.json");
 
-  std::string devicePath = getInputDevicePath(configDir);
+  std::string devicePath;
 
-  if (devicePath.empty()) {
-    if (!silent) std::cout << "No device found. Prompting user." << std::endl;
-    saveInputDevice(configDir);
+  if (!targetDeviceName.empty()) {
+    devicePath = getDevicePathByName(targetDeviceName);
+    if (devicePath.empty()) {
+      if (!silent)
+        std::cerr << "Device with name '" << targetDeviceName << "' not found."
+                  << std::endl;
+      return 1;
+    }
+  } else {
     devicePath = getInputDevicePath(configDir);
+
+    if (devicePath.empty()) {
+      if (!silent) std::cout << "No device found. Prompting user." << std::endl;
+      saveInputDevice(configDir);
+      devicePath = getInputDevicePath(configDir);
+    }
   }
 
   runMainLoop(devicePath, keySoundMap, volume, soundpackPath);
