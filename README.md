@@ -117,7 +117,7 @@ Options:
 
 Note: default soundpack path is `./`(current directory)
 
-wayvibes <soundpack_path> -v <volume(0.0-10.0)> --device-name <name>
+wayvibes <soundpack_path> -v <volume(0.0-10.0)>
 ```
 
 > [!NOTE]
@@ -126,7 +126,7 @@ wayvibes <soundpack_path> -v <volume(0.0-10.0)> --device-name <name>
 **Example:**
 
 ```bash
-wayvibes ~/wayvibes/soundpacks/akko_lavender_purples/ -v 3 --device-name 'ITE Tech. Inc. ITE Device Keyboard'
+wayvibes ~/wayvibes/soundpacks/akko_lavender_purples/ -v 3
 wayvibes ~/wayvibes/soundpacks/nk-cream/ -v 5 --background
 ```
 
