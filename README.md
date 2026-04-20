@@ -109,10 +109,11 @@ sudo usermod -a -G input <your_username>
 ```
 Usage: wayvibes [options] [soundpack_path]
 Options:
-  --device          Select input device
-  -v <volume>       Set volume (0.0-10.0) (default: 1.0)
-  --background, -bg Run in background (detached from terminal)
-  --help, -h       Show this help message;
+  --device              Select input device
+  --device-name <name>  Use input device by name
+  -v <volume>           Set volume (0.0-10.0) (default: 1.0)
+  --background, -bg     Run in background (detached from terminal)
+  --help, -h            Show this help message;
 
 Note: default soundpack path is `./`(current directory)
 
@@ -138,7 +139,7 @@ wayvibes ~/wayvibes/soundpacks/nk-cream/ -v 5 --background
 
 Upon the first run, Wayvibes will prompt you to select your keyboard device if there are multiple available. This selection will be stored in:
 
-`$XDG_CONFIG_HOME/wayvibes/input_device_path`
+`$XDG_CONFIG_HOME/wayvibes/input_device_name`
 
 Typically, the input device will be something like `AT Translated Set 2 keyboard` or `USB Keyboard`. If you use a key remapper like `keyd`, select its virtual device (e.g., `keyd virtual keyboard`).
 
@@ -152,12 +153,6 @@ If you use NixOS, you have to restart the service after changing the device.
 ```bash
 systemctl --user restart wayvibes.service
 ```
-
-> [!NOTE]
->
-> - **Device Path Persistence**: The program automatically uses stable `/dev/input/by-id/` paths when available.
-> - If the selected device doesn't have a by-id symlink, it will fallback to non-persistent paths, which **can change** when you reboot after plugging/unplugging devices
-> - Use `--device` to select the device again in such cases.
 
 > [!WARNING]
 > **Do not run the program with sudo/root privileges as it will monopolize the audio device until reboot.**

@@ -7,6 +7,9 @@
 // find available keyboard devices
 std::string findKeyboardDevices();
 
+// get the path of a device by its exact name
+std::string getDevicePathByName(const std::string &name);
+
 void runMainLoop(const std::string &devicePath,
                  const std::unordered_map<int, std::string> &keySoundMap, float volume,
                  const std::string &soundpackPath);
