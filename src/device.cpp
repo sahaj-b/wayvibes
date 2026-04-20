@@ -31,7 +31,6 @@ std::string findKeyboardDevices() {
   struct dirent *entry;
 
   while ((entry = readdir(dir)) != NULL) {
-    // if (!strstr(entry->d_name, "mouse")) {
     if (strncmp(entry->d_name, "event", 5) == 0) {
       devices.push_back(entry->d_name);
     }
@@ -96,7 +95,7 @@ std::string findKeyboardDevices() {
     int choice;
     std::cin >> choice;
 
-    if (choice >= 1 && choice <= filteredDevices.size()) {
+    if (choice >= 1 && choice <= (int)filteredDevices.size()) {
       selectedDevice = filteredDevices[choice - 1];
       validChoice = true;
     } else {
@@ -107,6 +106,8 @@ std::string findKeyboardDevices() {
   return selectedDevice;
 }
 
+// Finds a keyboard device path by its exact evdev name.
+// Used by the --device-name CLI flag to select a device without interactive prompting.
 std::string getDevicePathByName(const std::string &name) {
   DIR *dir = opendir(deviceDir);
   if (!dir) {
@@ -153,12 +154,12 @@ std::string getInputDevicePath(std::string &configDir) {
   std::ifstream inputFile(inputFilePath);
 
   if (inputFile.is_open()) {
-    std::string deviceName;
-    std::getline(inputFile, deviceName);
+    std::string savedPath;
+    std::getline(inputFile, savedPath);
     inputFile.close();
 
-    if (!deviceName.empty()) {
-      return getDevicePathByName(deviceName);
+    if (!savedPath.empty() && std::filesystem::exists(savedPath)) {
+      return savedPath;
     }
   }
 
@@ -168,30 +169,27 @@ std::string getInputDevicePath(std::string &configDir) {
 void saveInputDevice(std::string &configDir) {
   std::string selectedDevice = findKeyboardDevices();
   if (!selectedDevice.empty()) {
-    std::string devicePath = std::string(deviceDir) + selectedDevice;
-    int fd = open(devicePath.c_str(), O_RDONLY);
-    std::string deviceName;
+    // Default to the direct /dev/input/eventX path
+    std::string finalPath = std::string(deviceDir) + selectedDevice;
 
-    if (fd >= 0) {
-      struct libevdev *dev = nullptr;
-      if (libevdev_new_from_fd(fd, &dev) >= 0) {
-        deviceName = libevdev_get_name(dev);
-        libevdev_free(dev);
+    // Prefer a stable symlink from /dev/input/by-id/ if one points to this device,
+    // so the correct device is still found after a reboot or re-plug.
+    for (const auto &entry : std::filesystem::directory_iterator("/dev/input/by-id/")) {
+      if (std::filesystem::is_symlink(entry)) {
+        if (std::filesystem::read_symlink(entry).filename() == selectedDevice) {
+          finalPath = entry.path().string();
+          break;
+        }
       }
-      close(fd);
-    }
-
-    if (deviceName.empty()) {
-      std::cerr << RED << "Could not determine device name. Exiting." << RESET << std::endl;
-      exit(1);
     }
 
     std::ofstream outputFile(configDir + "/input_device_name");
-    outputFile << deviceName;
+    outputFile << finalPath;
     outputFile.close();
-    std::cout << GREEN << "Device name saved: " << deviceName << RESET << std::endl;
+    std::cout << GREEN << "Device path saved: " << finalPath << RESET << std::endl;
   } else {
     std::cerr << RED << "No device selected. Exiting." << RESET << std::endl;
     exit(1);
   }
 }
+
