@@ -139,7 +139,7 @@ wayvibes ~/wayvibes/soundpacks/nk-cream/ -v 5 --background
 
 Upon the first run, Wayvibes will prompt you to select your keyboard device if there are multiple available. This selection will be stored in:
 
-`$XDG_CONFIG_HOME/wayvibes/input_device_name`
+`$XDG_CONFIG_HOME/wayvibes/input_device`
 
 Typically, the input device will be something like `AT Translated Set 2 keyboard` or `USB Keyboard`. If you use a key remapper like `keyd`, select its virtual device (e.g., `keyd virtual keyboard`).
 

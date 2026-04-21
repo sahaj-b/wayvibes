@@ -30,9 +30,12 @@ void runMainLoop(const std::string &devicePath,
     return;
   }
 
+  char name[256] = "Unknown";
+  ioctl(fd, EVIOCGNAME(sizeof(name)), name);
+
   setVolume(volume);
 
-  std::cout << "Listening for key events on: " << devicePath << std::endl;
+  std::cout << "Listening for key events on: " << name << " (" << devicePath << ")" << std::endl;
 
   struct input_event ev;
   while (true) {

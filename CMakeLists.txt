@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(wayvibes)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specify the source files
 set(SOURCES
@@ -18,5 +19,5 @@ include_directories(src)
 # Add the executable
 add_executable(wayvibes ${SOURCES})
 
-# Link libraries (if any, e.g., for audio processing)
-# target_link_libraries(wayvibes <library_name>)
+# Link libraries
+target_link_libraries(wayvibes evdev)
